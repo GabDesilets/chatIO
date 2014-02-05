@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
+<html>
+<head>
+    <title>vikingDev</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="">
+    <meta name="author" content="Gabriel Désilets">
+    <link rel="shortcut icon" href="../img/favicon.ico" />
+    <link href="../css/bootstrap.css" type="text/css" rel="stylesheet">
+    <link href="../css/style.css" type="text/css" rel="stylesheet">
+    <link href="../css/prettify.css" type="text/css" rel="stylesheet">
+    <link href="../css/bootstrap-theme.css" type="text/css" rel="stylesheet">
+    <link href="../css/bootstrap-responsive.css" type="text/css" rel="stylesheet">
+    <link href="../css/docs.css" type="text/css" rel="stylesheet">
+    <link href="../css/bootstrap-select.css" type="text/css" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,700" media="screen" rel="stylesheet" type="text/css" />
+    <script src="../js/jquery.js"></script>
+    <script src="../js/bootstrap-select.js"></script>
+    <script src="../js/bootstrap.js"></script>
+    <script src="../js/typeWriter.js"></script>
+    <script src="../js/prettify.js"></script>
+    <script src="../js/fixeHead.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+<div id="validation_user" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Gimme your credentials !</h4>
+            </div>
+            <div class="modal-body form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="username">Username:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="username" placeholder="username">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="password">Password:</label>
+                    <div class="col-sm-10">
+                        <input type="password" class="form-control" id="password" placeholder="password">
+                    </div>
+                </div>
+                <div class="form-group text-right">
+                    <button type="button" class="btn btn-default" id='login' data-dismiss="modal">Login</button>
+                </div>
+
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div class="container">
+    <div id="conversation" style="overflow-y:scroll;word-break:break-all ;height: 500px;background-color: lightgrey"></div>
+    <input id="message" style="width: 90%;" />
+    <input type="button" class="btn btn-info" id="send" value="send" />
+</div>
+</body>
+</html>
+
+<script>
+    //PROD URL
+    //var socket = io.connect('http://vikingdev.ca');
+    // DEV URL
+    var socket           = io.connect('http://localhost:8080');
+
+    var $conversation    = $('#conversation');
+    var $validation_user = $('#validation_user');
+
+    /**
+     * Become active when the socket connect
+     */
+    socket.on('connect', function(){
+        $validation_user.modal('show');
+    });
+
+    /**
+     * clear the conversation block
+     */
+    socket.on('clearScreen', function(username, data){
+        $conversation.html('');
+    });
+
+    /**
+     * listener, whenever the server emits 'newMessage', this updates the chat body
+     */
+    socket.on('newMessage', function (username, data) {
+        if(!$conversation.is(':visible')) {
+            $conversation.fadeToggle('slow');
+        }
+        $conversation.append(
+                '[' + formatAMPM(new Date())
+                        + '] == '
+                        + '<b>' + username + ':</b> '
+                        + data + '<br>'
+        );
+        $conversation.scrollTop($conversation[0].scrollHeight);
+    });
+
+    /**
+     * listener, whenever the server emits a denied access, this modified the div and disconnect him
+     */
+    socket.on('accessDenied', function (username, data) {
+        $conversation.html(
+                '[' + formatAMPM(new Date())
+                        + '] == '
+                        + '<b>' + $('#username').val() + ':</b> '
+                        + data + '<br>'
+        );
+        $conversation.show();
+    });
+
+    socket.on('trollRedirect', function(url) {
+        window.location.href = url;
+    });
+    // on load of page
+    $(function(){
+        $conversation.hide();
+
+        $validation_user.modal({
+            keyboard: false
+        })
+        // when the client clicks SEND
+        $('#send').click( function() {
+            var $message = $('#message');
+            socket.emit('message', $message.val());
+            $message.val('');
+            $message.focus();
+        });
+
+        // when the client hits ENTER on their keyboard
+        $('#message').keypress(function(e) {
+            if(e.which == 13) {
+                $(this).blur();
+                $('#send').trigger('click');
+                $(this).focus();
+            }
+        });
+
+
+        $validation_user.on('hidden.bs.modal', function () {
+            var $username = $('#username');
+            var $password = $('#password');
+            socket.emit('acceptUser', $username.val(), $password.val());
+            $username.val('');
+            $password.val('');
+        });
+
+    });
+
+    function formatAMPM(date) {
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        var ampm = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        minutes = minutes < 10 ? '0'+minutes : minutes;
+        var strTime = hours + ':' + minutes + ' ' + ampm;
+        return strTime;
+    }
+</script>

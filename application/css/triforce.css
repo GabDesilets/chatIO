@@ -1,0 +1,41 @@
+.triforce {
+    border-bottom: 1em solid #555;
+    border-left: 0.5em solid transparent;
+    border-right: 0.5em solid transparent;
+    display: inline-block;
+    height: 0;
+    left: 48%;
+    margin: -1.5em -1em;
+    position: absolute;
+    top: 6.5%;
+    width: 0;
+
+}
+.triforce:after,
+.triforce:before {
+    border-bottom: 1em solid #555;
+    border-left: 0.5em solid transparent;
+    border-right: 0.5em solid transparent;
+    content: '';
+    height: 0;
+    position: absolute;
+    top: 0.5em;
+    width: 0;
+}
+.triforce:after,
+.triforce:before {
+    border-bottom: 1em solid #555;
+    border-left: 0.5em solid transparent;
+    border-right: 0.5em solid transparent;
+    content: '';
+    height: 0;
+    position: absolute;
+    top: 1em;
+    width: 0;
+}
+.triforce:after {
+    left: 0;
+}
+.triforce:before {
+    right: 0;
+}​
