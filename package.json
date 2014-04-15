@@ -1,0 +1,35 @@
+{
+  "name": "vikingdevChat",
+  "subdomain": "vikingdevChat",
+  "scripts": {
+    "start": "application\\app.js"
+  },
+  "version": "0.0.0",
+  "engines": {
+    "node": "0.10.x"
+  },
+  "dependencies": {
+    "express": "*",
+    "socket.io": "*",
+    "sanitizer": "*"
+  },
+  "description": "chatIO\r ======",
+  "main": "application/app.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bestdramana/chatIO.git"
+  },
+  "keywords": [
+    "chat",
+    "irc",
+    "socket",
+    "node",
+    "heroku"
+  ],
+  "author": "Gabriel Desilets",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/bestdramana/chatIO/issues"
+  }
+}
