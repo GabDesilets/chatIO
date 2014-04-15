@@ -1,0 +1,44 @@
+{
+    "users": [
+        {
+            "username": "gab",
+            "password": "gd",
+            "uberUser": "true"
+        },
+        {
+            "username": "nic",
+            "password": "nic",
+            "uberUser": "false"
+        },
+        {
+            "username": "doom",
+            "password": "doom",
+            "uberUser": "false"
+        },
+        {
+            "username": "joe",
+            "password": "joe",
+            "uberUser": "false"
+        },
+        {
+            "username": "pichette",
+            "password": "pichette",
+            "uberUser": "false"
+        },
+        {
+            "username": "albu",
+            "password": "albu",
+            "uberUser": "false"
+        },
+        {
+            "username": "seb",
+            "password": "seb",
+            "uberUser": "false"
+        },
+        {
+            "username": "marc",
+            "password": "marc",
+            "uberUser": "false"
+        }
+    ]
+}
