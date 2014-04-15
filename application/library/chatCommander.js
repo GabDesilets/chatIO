@@ -5,6 +5,7 @@
  * Usage: TODO
  */
 
+'use strict';
 
 /**
  *
@@ -42,14 +43,15 @@ var ChatCommander = function(io, onlineList) {
      */
     this.getUserIndex = function(username) {
 
-        for(var i = 0; i <= this.chatWhiteList.users.length - 1; i++) {
+        var i = 0;
+
+        for(i ; i <= this.chatWhiteList.users.length - 1; i++) {
             if (this.chatWhiteList.users[i].username == username) {
                 return i;
-                break;
             }
         }
         return false;
-    }
+    };
 };
 
 /**
@@ -99,9 +101,10 @@ ChatCommander.prototype.getThirdParam = function(message) {
  * @returns {string}
  */
 ChatCommander.prototype.getWhisperMessage = function(message) {
-    var msg = message.split(" ")[2];
+    var msg = message.split(" ")[2],
+        idx;
     if (msg) {
-        var idx = message.indexOf(msg);
+         idx = message.indexOf(msg);
         return message.substring(idx);
     }
     return '';
@@ -205,8 +208,9 @@ ChatCommander.prototype.doClearScreen = function(socket, doAll) {
 };
 
 ChatCommander.prototype.doWhoIsOnline = function(socket) {
-    var who = 'Who\'s online: ';
-    for (var i = 0; i < this.who.length; i++) {
+    var who = 'Who\'s online: ',
+        i = 0;
+    for (i; i < this.who.length; i++) {
         who += this.who[i] + '-';
     }
     socket.emit('newMessage', 'SERVER', who);
@@ -225,7 +229,8 @@ ChatCommander.prototype.doWhisper = function(socket, data) {
 };
 
 ChatCommander.prototype.doHelp = function(socket) {
-    for (var key in this.commands) {
+    var key;
+    for (key in this.commands) {
         if (this.commands.hasOwnProperty(key)) {
             socket.emit('newMessage', 'SERVER', key + ': ' + this.commands[key]);
         }
@@ -249,9 +254,9 @@ ChatCommander.prototype.doKick = function(socket, data) {
 
 ChatCommander.prototype.doRename = function(socket, data) {
 
-    var forUser   = this.getSecondParam(data);
-    var newName   = this.getThirdParam(data);
-    var userIndex = this.getUserIndex(forUser);
+    var forUser   = this.getSecondParam(data),
+        newName   = this.getThirdParam(data),
+        userIndex = this.getUserIndex(forUser);
 
     if (userIndex) {
        this.chatWhiteList.users[userIndex].username = newName;
@@ -267,9 +272,9 @@ ChatCommander.prototype.doRename = function(socket, data) {
 
 ChatCommander.prototype.doChangePassword =  function(socket, data) {
 
-    var forUser     = this.getSecondParam(data);
-    var newPassword = this.getThirdParam(data);
-    var userIndex   = this.getUserIndex(forUser);
+    var forUser     = this.getSecondParam(data),
+        newPassword = this.getThirdParam(data),
+        userIndex   = this.getUserIndex(forUser);
 
     if (userIndex) {
 
@@ -283,7 +288,7 @@ ChatCommander.prototype.doChangePassword =  function(socket, data) {
 };
 
 ChatCommander.prototype.getTrollUrl = function() {
-    var rdn = Math.floor((Math.random() * 6) + 0);
+    var rdn = Math.floor((Math.random() * 6));
 
     return this.trollUrl[rdn];
 };
@@ -305,13 +310,14 @@ ChatCommander.prototype.renameSuccess = function(oldName, newName, socket) {
     socket.broadcast.emit('newMessage', 'SERVER', oldName + ' has changed name to ' + newName + '...he\'s a faggot');
     socket.emit('newMessage', 'SERVER', oldName + ' has changed name to ' + newName + ' successfully');
 
-    var skt = this.getTargetedUserSocket(oldName);
+    var skt = this.getTargetedUserSocket(oldName),
+        i = 0;
 
     if(skt) {
         skt.username = newName;
     }
 
-    for(var i = 0; i < this.who.length; i++) {
+    for(i; i < this.who.length; i++) {
         if(this.who[i] == oldName) {
             this.who[i] = newName;
         }

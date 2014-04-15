@@ -4,6 +4,9 @@
  * Time : 12:30 PM
  * Usage: TODO
  */
+
+'use strict';
+
 var app      = require('express')()
     , server = require('http').createServer(app)
     , io     = require('socket.io').listen(server);
@@ -27,11 +30,11 @@ app.use(express.bodyParser());
 server.listen(8080);
 
 function getUser(username) {
-    console.log(chatWhiteList.users.length);
-    for(var i = 0; i <= chatWhiteList.users.length - 1; i++) {
+
+    var i = 0;
+    for( i; i <= chatWhiteList.users.length - 1; i++) {
         if (chatWhiteList.users[i].username == username) {
             return chatWhiteList.users[i];
-            break;
         }
     }
     return false;
@@ -98,8 +101,9 @@ io.sockets.on('connection', function (socket) {
 
     // when the user disconnects.. perform this
     socket.on('disconnect', function(){
+        var i = 0;
         // echo globally that this client has left
-        for(var i=0; i<connectedUsers.length; i++) {
+        for(i ; i<connectedUsers.length; i++) {
             if(connectedUsers[i] == socket.username) {
                 connectedUsers.splice(i, 1);
             }
