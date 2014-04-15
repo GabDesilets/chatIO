@@ -2,7 +2,7 @@
   "name": "vikingdevChat",
   "subdomain": "vikingdevChat",
   "scripts": {
-    "start": "application\\app.js"
+    "start": "application/app.js"
   },
   "version": "0.0.0",
   "engines": {
