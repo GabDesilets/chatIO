@@ -1,0 +1,15 @@
+{
+    "users" : [
+        {
+            "username" : "test",
+            "password" : "test",
+            "uberUser" : true
+        },
+        {
+            "username" : "abc",
+            "password" : "abc",
+            "uberUser" : false
+        }
+    ]
+}
+

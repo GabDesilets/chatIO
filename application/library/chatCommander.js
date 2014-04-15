@@ -1,18 +1,10 @@
 /**
  * User : Gabriel
- * Date : 05/02/14
- * Time : 12:32 PM
- * Usage: TODO
- */
-/**
- * User : Gabriel
  * Date : 19/01/14
  * Time : 7:49 PM
  * Usage: TODO
  */
 
-//{"gab":"1390259255","nic":"1390259315","doom":"suck_me","pkz":"1390259435","pichette":"1390259495","albi":"1390259555","seb":"1390263215","marc":"1390346015","laurel":"1392938015"}
-//TODO Check for function use
 
 /**
  *
@@ -31,7 +23,7 @@ var ChatCommander = function(io, onlineList) {
     };
     this.who            = onlineList;
     this.fs             = require('fs');
-    this.chatWhiteList  = require('../white_list.json');
+    this.chatWhiteList  = JSON.parse(this.fs.readFileSync('./white_list.json'));
 
     this.trollUrl       = [
         'http://georgekostuch.com/wp-content/uploads/2013/10/umadbro.jpg',
@@ -41,6 +33,23 @@ var ChatCommander = function(io, onlineList) {
         'http://4.bp.blogspot.com/_kROEd6zZmN8/TT0c3BVmAbI/AAAAAAAAAUg/vBIQWWgMPz4/s1600/nicolas-cage-hair-is-a-bird.jpg',
         'http://www.quickmeme.com/img/b3/b301df8a243d57078095f3738336e0e2cb05a245447050ade0bdadba7586d23d.jpg'
     ];
+
+    /**
+     * I know i shouldn't mix the way im going but meh !
+     *
+     * @param username
+     * @returns {*}
+     */
+    this.getUserIndex = function(username) {
+
+        for(var i = 0; i <= this.chatWhiteList.users.length - 1; i++) {
+            if (this.chatWhiteList.users[i].username == username) {
+                return i;
+                break;
+            }
+        }
+        return false;
+    }
 };
 
 /**
@@ -81,16 +90,6 @@ ChatCommander.prototype.getSecondParam = function(message) {
  */
 ChatCommander.prototype.getThirdParam = function(message) {
     return message.split(" ")[3];
-};
-
-/**
- *Get the targeted user by the command
- *
- * @param message string
- * @returns {string/undefined}
- */
-ChatCommander.prototype.getTargetedUser = function(message) {
-    return message.split(" ")[1];
 };
 
 /**
@@ -137,7 +136,7 @@ ChatCommander.prototype.executeCommand = function(command, socket, data) {
             this.doKick(socket, data);
             break;
         case '/cls':
-            this.doClearScreen(socket, this.getTargetedUser(data) === '-a');
+            this.doClearScreen(socket, this.getFirstParam(data) === '-a');
             break;
         case '/ch' :
             if (this.getFirstParam(data) === '-u') {
@@ -214,7 +213,7 @@ ChatCommander.prototype.doWhoIsOnline = function(socket) {
 };
 
 ChatCommander.prototype.doWhisper = function(socket, data) {
-    var  skt = this.getTargetedUserSocket(this.getTargetedUser(data));
+    var  skt = this.getTargetedUserSocket(this.getFirstParam(data));
 
     if(skt) {
         skt.emit('newMessage', 'SERVER whisper from ' + socket.username, this.getWhisperMessage(data));
@@ -235,11 +234,11 @@ ChatCommander.prototype.doHelp = function(socket) {
 
 ChatCommander.prototype.doKick = function(socket, data) {
 
-    var skt = this.getTargetedUserSocket(this.getTargetedUser(data));
+    var skt = this.getTargetedUserSocket(this.getFirstParam(data));
 
     if(skt) {
         skt.emit('newMessage', 'SERVER', 'Suck to be you, you\'ve been kicked.');
-        skt.broadcast.emit('newMessage', 'SERVER', this.getTargetedUser(data) + ' has been kick hahahaha.');
+        skt.broadcast.emit('newMessage', 'SERVER', this.getFirstParam(data) + ' has been kick hahahaha.');
         skt.emit('trollRedirect', this.getTrollUrl());
     }
     else {
@@ -250,50 +249,14 @@ ChatCommander.prototype.doKick = function(socket, data) {
 
 ChatCommander.prototype.doRename = function(socket, data) {
 
-    var forUser = this.getSecondParam(data);
-    var newName = this.getThirdParam(data);
+    var forUser   = this.getSecondParam(data);
+    var newName   = this.getThirdParam(data);
+    var userIndex = this.getUserIndex(forUser);
 
-    if (forUser in this.chatWhiteList && forUser !== 'gab') {
-        // Transfer the object to a JSON string
-        var jsonStr = JSON.stringify(this.chatWhiteList);
+    if (userIndex) {
+       this.chatWhiteList.users[userIndex].username = newName;
 
-        // HERE you do the transform
-        var newJsonStr = jsonStr.replace(forUser, newName);
-
-        // You probably want to parse the altered string later
-        var newObj = JSON.parse(newJsonStr);
-
-        this.chatWhiteList = newObj;
-
-
-        this.writeJSON(newObj, this.renameSuccess(forUser, newName, socket));
-
-        // var that = this;
-
-        this.fs.writeFile('./white_list.json', JSON.stringify(newObj), function (err) {
-            if (err) {
-                console.log(err);
-            }
-            else {
-
-                console.log('success');
-                socket.broadcast.emit('newMessage', 'SERVER', forUser + ' has changed name to ' + newName + '...he\'s a faggot');
-                socket.emit('newMessage', 'SERVER', forUser + ' has changed name to ' + newName + ' successfully');
-
-                var skt = that.getTargetedUserSocket(forUser);
-
-                if (skt) {
-                    skt.username = newName;
-                }
-
-                for (var i = 0; i < this.who.length; i++) {
-                    if (this.who[i] == forUser) {
-                        this.who.splice(i, 1);
-                    }
-                }
-            }
-        });
-
+        this.writeJSON(this.chatWhiteList, this.renameSuccess(forUser, newName, socket));
     }
     else {
         socket.emit('newMessage', 'SERVER', 'Trying to rename someone who isn\'t in the white list...');
@@ -306,37 +269,13 @@ ChatCommander.prototype.doChangePassword =  function(socket, data) {
 
     var forUser     = this.getSecondParam(data);
     var newPassword = this.getThirdParam(data);
+    var userIndex   = this.getUserIndex(forUser);
 
-    if (forUser in this.chatWhiteList) {
+    if (userIndex) {
 
-        this.chatWhiteList[forUser] = newPassword;
+        this.chatWhiteList.users[userIndex].password = newPassword;
 
-        // Transfer the object to a JSON string
-        var jsonStr = JSON.stringify(this.chatWhiteList);
-
-        // You probably want to parse the altered string later
-        var newObj = JSON.parse(jsonStr);
-
-        this.chatWhiteList = newObj;
-
-        this.writeJSON(newObj, this.changePasswordSuccess(newPassword, forUser));
-        var that = this;
-
-         this.fs.writeFile('./white_list.json',  JSON.stringify(newObj), function (err) {
-             if (err) {
-                console.log(err);
-             }
-             else {
-                 console.log('success');
-                 socket.emit('newMessage', 'SERVER', forUser + ' password has been change successfully to ' + newPassword + ' successfully');
-
-                 var skt = that.getTargetedUserSocket(forUser);
-                 if(skt) {
-                     skt.emit('newMessage', 'SERVER', 'Your password has been change successfully');
-                     skt.emit('newMessage', 'SERVER', 'Your new password is: ' + newPassword);
-                 }
-             }
-         });
+        this.writeJSON(this.chatWhiteList, this.changePasswordSuccess(newPassword, forUser, socket));
     }
     else {
         socket.emit('newMessage', 'SERVER', 'Trying to change the password someone who isn\'t in the white list...');
@@ -351,9 +290,7 @@ ChatCommander.prototype.getTrollUrl = function() {
 
 ChatCommander.prototype.writeJSON = function(newWhiteList, callback) {
 
-    var that = this;
-
-    this.fs.writeFile('./white_list.json',  JSON.stringify(newWhiteList), function (err) {
+    this.fs.writeFile('./white_list.json',  JSON.stringify(newWhiteList, null, 4), function (err) {
         if (err) {
             console.log(err);
         }
@@ -374,14 +311,17 @@ ChatCommander.prototype.renameSuccess = function(oldName, newName, socket) {
         skt.username = newName;
     }
 
-    for(var i=0; i<this.who.length; i++) {
+    for(var i = 0; i < this.who.length; i++) {
         if(this.who[i] == oldName) {
-            this.who.splice(i, 1);
+            this.who[i] = newName;
         }
     }
 };
 
-ChatCommander.prototype.changePasswordSuccess = function(newPassword, forUser) {
+
+ChatCommander.prototype.changePasswordSuccess = function(newPassword, forUser, socket) {
+
+    socket.emit('newMessage', 'SERVER', forUser + ' has changed password to ' + newPassword + ' successfully');
 
     var skt = this.getTargetedUserSocket(forUser);
     if(skt) {

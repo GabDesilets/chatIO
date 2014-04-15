@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
 <head>
-    <title>vikingDev</title>
+    <title>Chat.io</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="">
@@ -108,7 +108,7 @@
         $conversation.html(
                 '[' + formatAMPM(new Date())
                         + '] == '
-                        + '<b>' + $('#username').val() + ':</b> '
+                        + '<b>' + username + ':</b> '
                         + data + '<br>'
         );
         $conversation.show();
@@ -123,7 +123,8 @@
 
         $validation_user.modal({
             keyboard: false
-        })
+        });
+
         // when the client clicks SEND
         $('#send').click( function() {
             var $message = $('#message');

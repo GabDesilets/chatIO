@@ -8,13 +8,13 @@ var app      = require('express')()
     , server = require('http').createServer(app)
     , io     = require('socket.io').listen(server);
 
-var qs            = require('querystring');
-var fs            = require('fs');
-var path          = require('path');
+var qs             = require('querystring');
+var fs             = require('fs');
+var path           = require('path');
 var ChatCommander  = require('./library/chatCommander');
 var sanitizer      = require('sanitizer');
-var connectedUsers = [];
 var express        = require('express');
+var connectedUsers = [];
 var chatCommander  = new ChatCommander(io, connectedUsers);
 var chatWhiteList  = {};
 
@@ -26,20 +26,33 @@ app.use(express.bodyParser());
 
 server.listen(8080);
 
+function getUser(username) {
+    console.log(chatWhiteList.users.length);
+    for(var i = 0; i <= chatWhiteList.users.length - 1; i++) {
+        if (chatWhiteList.users[i].username == username) {
+            return chatWhiteList.users[i];
+            break;
+        }
+    }
+    return false;
+}
+
 app.get('/', function (req, res) {
     res.sendfile(__dirname+'/views/chat.html');
 });
 
 io.sockets.on('connection', function (socket) {
+
+     chatWhiteList  = JSON.parse(fs.readFileSync(__dirname+'/white_list.json'));
+
     /**
      * Executed when the someone send a new message.
      * will bind with newMessage on the client-side
      */
-
     socket.on('message', function (data) {
-
+        var user = getUser(socket.username);
         if (data.trim() != "") {
-            if(socket.username === 'gab' || socket.username === 'gab') {
+            if(user.uberUser == "true") {
                 chatCommander.executeCommand(
                     chatCommander.getCommand(data),
                     socket,
@@ -48,7 +61,6 @@ io.sockets.on('connection', function (socket) {
             }
             else {
                 // we tell the client to execute 'newMessage' with 2 parameters
-                // io.sockets.emit('newMessage', socket.username, sanitizer.sanitize(data));
                 chatCommander.executeNormalCmd(
                     chatCommander.getCommand(data),
                     socket,
@@ -63,12 +75,12 @@ io.sockets.on('connection', function (socket) {
     /**
      * Executed when the client enter the page we valid if he's in our white-list
      */
-
     socket.on('acceptUser', function(username, password){
-        chatWhiteList = JSON.parse(fs.readFileSync(__dirname+'/white_list.json'));
-console.log(chatWhiteList);
+
+        var user = getUser(username);
+
         // we store the username in the socket session for this client
-        if (username in chatWhiteList && chatWhiteList[username] == password  && connectedUsers.indexOf(username) == -1) {
+        if (user && user.password == password  && connectedUsers.indexOf(username) == -1) {
             socket.username = username;
             connectedUsers.push(username);
             // echo to client they've connected
