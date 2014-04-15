@@ -27,7 +27,10 @@ app.use("/img", express.static(__dirname+'/img'));
 app.use(express.static(__dirname + '/public'));
 app.use(express.bodyParser());
 
-server.listen(8080);
+io.configure(function () {
+    io.set("transports", ["xhr-polling"]);
+    io.set("polling duration", 10);
+});
 
 function getUser(username) {
 
@@ -39,6 +42,9 @@ function getUser(username) {
     }
     return false;
 }
+
+var port = process.env.PORT || 5000; // Use the port that Heroku provides or default to 5000
+server.listen(port);
 
 app.get('/', function (req, res) {
     res.sendfile(__dirname+'/views/chat.html');
