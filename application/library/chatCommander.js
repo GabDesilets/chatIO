@@ -24,7 +24,7 @@ var ChatCommander = function(io, onlineList) {
     };
     this.who            = onlineList;
     this.fs             = require('fs');
-    this.chatWhiteList  = JSON.parse(this.fs.readFileSync('./white_list.json'));
+    this.chatWhiteList  = JSON.parse(this.fs.readFileSync('./application/white_list.json'));
 
     this.trollUrl       = [
         'http://georgekostuch.com/wp-content/uploads/2013/10/umadbro.jpg',
@@ -295,7 +295,7 @@ ChatCommander.prototype.getTrollUrl = function() {
 
 ChatCommander.prototype.writeJSON = function(newWhiteList, callback) {
 
-    this.fs.writeFile('./white_list.json',  JSON.stringify(newWhiteList, null, 4), function (err) {
+    this.fs.writeFile('./application/white_list.json',  JSON.stringify(newWhiteList, null, 4), function (err) {
         if (err) {
             console.log(err);
         }
