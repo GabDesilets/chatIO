@@ -60,10 +60,8 @@
 </html>
 
 <script>
-    //PROD URL
-    //var socket = io.connect('http://vikingdev.ca');
-    // DEV URL
-    var socket           = io.connect('http://localhost:8080');
+
+    var socket           = io.connect('http://vikingdevchat.herokuapp.com/');
 
     var $conversation    = $('#conversation');
     var $validation_user = $('#validation_user');
