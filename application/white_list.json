@@ -26,8 +26,8 @@
             "uberUser": "false"
         },
         {
-            "username": "albi",
-            "password": "albu",
+            "username": "faggot",
+            "password": "albi",
             "uberUser": "false"
         },
         {
@@ -38,6 +38,21 @@
         {
             "username": "marc",
             "password": "marc",
+            "uberUser": "false"
+        },
+        {
+            "username": "gl",
+            "password": "lg",
+            "uberUser": "false"
+        },
+        {
+            "username": "js",
+            "password": "js",
+            "uberUser": "false"
+        },
+        {
+            "username": "sam",
+            "password": "sam",
             "uberUser": "false"
         }
     ]

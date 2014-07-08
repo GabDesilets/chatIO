@@ -20,13 +20,6 @@
     "type": "git",
     "url": "https://github.com/bestdramana/chatIO.git"
   },
-  "keywords": [
-    "chat",
-    "irc",
-    "socket",
-    "node",
-    "heroku"
-  ],
   "author": "Gabriel Desilets",
   "license": "BSD",
   "bugs": {
